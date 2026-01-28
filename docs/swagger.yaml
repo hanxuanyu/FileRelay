@@ -1,0 +1,1076 @@
+basePath: /
+definitions:
+  admin.CreateTokenRequest:
+    properties:
+      expire_at:
+        type: string
+      name:
+        example: Test Token
+        type: string
+      scope:
+        enum:
+        - upload
+        - pickup
+        - admin
+        example: upload,pickup
+        type: string
+    required:
+    - name
+    type: object
+  admin.CreateTokenResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.APIToken'
+      token:
+        type: string
+    type: object
+  admin.ListBatchesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.FileBatch'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  admin.LoginRequest:
+    properties:
+      password:
+        example: admin
+        type: string
+    required:
+    - password
+    type: object
+  admin.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  admin.UpdateBatchRequest:
+    properties:
+      download_count:
+        type: integer
+      expire_at:
+        type: string
+      expire_type:
+        type: string
+      max_downloads:
+        type: integer
+      remark:
+        type: string
+      status:
+        type: string
+    type: object
+  config.APITokenConfig:
+    properties:
+      allow_admin_api:
+        description: 是否允许 API Token 访问管理接口
+        type: boolean
+      enabled:
+        description: 是否启用 API Token
+        type: boolean
+      max_tokens:
+        description: 最大 Token 数量
+        type: integer
+    type: object
+  config.Config:
+    properties:
+      api_token:
+        allOf:
+        - $ref: '#/definitions/config.APITokenConfig'
+        description: API Token 设置
+      database:
+        allOf:
+        - $ref: '#/definitions/config.DatabaseConfig'
+        description: 数据库设置
+      log:
+        allOf:
+        - $ref: '#/definitions/config.LogConfig'
+        description: 日志设置
+      security:
+        allOf:
+        - $ref: '#/definitions/config.SecurityConfig'
+        description: 安全设置
+      site:
+        allOf:
+        - $ref: '#/definitions/config.SiteConfig'
+        description: 站点设置
+      storage:
+        allOf:
+        - $ref: '#/definitions/config.StorageConfig'
+        description: 存储设置
+      upload:
+        allOf:
+        - $ref: '#/definitions/config.UploadConfig'
+        description: 上传设置
+      web:
+        allOf:
+        - $ref: '#/definitions/config.WebConfig'
+        description: Web 前端设置
+    type: object
+  config.DatabaseConfig:
+    properties:
+      config:
+        description: 额外配置参数 (DSN)
+        type: string
+      dbname:
+        description: 数据库名称
+        type: string
+      host:
+        description: 数据库地址
+        type: string
+      password:
+        description: 数据库密码
+        type: string
+      path:
+        description: SQLite 数据库文件路径
+        type: string
+      port:
+        description: 数据库端口
+        type: integer
+      type:
+        description: '数据库类型: sqlite, mysql, postgres'
+        type: string
+      user:
+        description: 数据库用户名
+        type: string
+    type: object
+  config.LogConfig:
+    properties:
+      file_path:
+        description: 日志文件路径，为空则仅输出到控制台
+        type: string
+      level:
+        description: '日志级别: debug, info, warn, error'
+        type: string
+    type: object
+  config.SecurityConfig:
+    properties:
+      admin_password:
+        description: 管理员密码明文 (仅用于更新请求，不保存到文件)
+        type: string
+      admin_password_hash:
+        description: 管理员密码哈希 (bcrypt)
+        type: string
+      jwt_secret:
+        description: JWT 签名密钥
+        type: string
+      pickup_code_length:
+        description: 取件码长度 (变更后将自动通过右侧补零或截取调整存量数据)
+        type: integer
+      pickup_fail_limit:
+        description: 取件失败尝试限制
+        type: integer
+    type: object
+  config.SiteConfig:
+    properties:
+      base_url:
+        description: '站点外部访问地址 (例如: https://file.example.com)'
+        type: string
+      description:
+        description: 站点描述
+        type: string
+      logo:
+        description: 站点 Logo URL
+        type: string
+      name:
+        description: 站点名称
+        type: string
+      port:
+        description: 监听端口
+        type: integer
+    type: object
+  config.StorageConfig:
+    properties:
+      local:
+        properties:
+          path:
+            description: 本地存储路径
+            type: string
+        type: object
+      s3:
+        properties:
+          access_key:
+            description: S3 Access Key
+            type: string
+          bucket:
+            description: S3 Bucket
+            type: string
+          endpoint:
+            description: S3 端点
+            type: string
+          region:
+            description: S3 区域
+            type: string
+          secret_key:
+            description: S3 Secret Key
+            type: string
+          use_ssl:
+            description: 是否使用 SSL
+            type: boolean
+        type: object
+      type:
+        description: '存储类型: local, webdav, s3'
+        type: string
+      webdav:
+        properties:
+          password:
+            description: WebDAV 密码
+            type: string
+          root:
+            description: WebDAV 根目录
+            type: string
+          url:
+            description: WebDAV 地址
+            type: string
+          username:
+            description: WebDAV 用户名
+            type: string
+        type: object
+    type: object
+  config.UploadConfig:
+    properties:
+      max_batch_files:
+        description: 每个批次最大文件数
+        type: integer
+      max_file_size_mb:
+        description: 单个文件最大大小 (MB)
+        type: integer
+      max_retention_days:
+        description: 最大保留天数
+        type: integer
+      require_token:
+        description: 是否强制要求上传 Token
+        type: boolean
+    type: object
+  config.WebConfig:
+    properties:
+      path:
+        description: Web 前端资源路径
+        type: string
+    type: object
+  model.APIToken:
+    properties:
+      created_at:
+        type: string
+      expire_at:
+        type: string
+      id:
+        type: integer
+      last_used_at:
+        type: string
+      name:
+        type: string
+      revoked:
+        type: boolean
+      scope:
+        type: string
+    type: object
+  model.FileBatch:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      download_count:
+        type: integer
+      expire_at:
+        type: string
+      expire_type:
+        description: time / download / permanent
+        type: string
+      file_items:
+        items:
+          $ref: '#/definitions/model.FileItem'
+        type: array
+      id:
+        type: string
+      max_downloads:
+        type: integer
+      pickup_code:
+        type: string
+      remark:
+        type: string
+      status:
+        description: active / expired / deleted
+        type: string
+      type:
+        description: file / text
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.FileItem:
+    properties:
+      batch_id:
+        type: string
+      created_at:
+        type: string
+      download_url:
+        type: string
+      id:
+        type: string
+      mime_type:
+        type: string
+      original_name:
+        type: string
+      size:
+        type: integer
+      storage_path:
+        type: string
+    type: object
+  model.Response:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data: {}
+      msg:
+        example: success
+        type: string
+    type: object
+  public.DownloadCountResponse:
+    properties:
+      download_count:
+        type: integer
+      max_downloads:
+        type: integer
+    type: object
+  public.PickupResponse:
+    properties:
+      content:
+        type: string
+      download_count:
+        type: integer
+      expire_at:
+        type: string
+      expire_type:
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/model.FileItem'
+        type: array
+      max_downloads:
+        type: integer
+      remark:
+        type: string
+      type:
+        type: string
+    type: object
+  public.PublicAPITokenConfig:
+    properties:
+      enabled:
+        type: boolean
+    type: object
+  public.PublicConfig:
+    properties:
+      api_token:
+        $ref: '#/definitions/public.PublicAPITokenConfig'
+      security:
+        $ref: '#/definitions/public.PublicSecurityConfig'
+      site:
+        $ref: '#/definitions/config.SiteConfig'
+      storage:
+        $ref: '#/definitions/public.PublicStorageConfig'
+      upload:
+        $ref: '#/definitions/config.UploadConfig'
+    type: object
+  public.PublicSecurityConfig:
+    properties:
+      pickup_code_length:
+        type: integer
+    type: object
+  public.PublicStorageConfig:
+    properties:
+      type:
+        type: string
+    type: object
+  public.UploadResponse:
+    properties:
+      batch_id:
+        type: string
+      expire_at:
+        type: string
+      pickup_code:
+        type: string
+    type: object
+  public.UploadTextRequest:
+    properties:
+      content:
+        example: 这是一段长文本内容...
+        type: string
+      expire_days:
+        example: 7
+        type: integer
+      expire_type:
+        example: time
+        type: string
+      max_downloads:
+        example: 5
+        type: integer
+      remark:
+        example: 文本备注
+        type: string
+    required:
+    - content
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: 自托管的文件暂存柜后端系统 API 文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: 文件暂存柜 API
+  version: "1.0"
+paths:
+  /api/admin/api-tokens:
+    get:
+      description: 获取系统中所有 API Token 的详细信息（不包含哈希）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.APIToken'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 获取 API Token 列表
+      tags:
+      - Admin
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的 API Token，返回原始 Token（仅显示一次）
+      parameters:
+      - description: Token 信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/admin.CreateTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/admin.CreateTokenResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 创建 API Token
+      tags:
+      - Admin
+  /api/admin/api-tokens/{id}:
+    delete:
+      description: 根据 ID 永久删除 API Token
+      parameters:
+      - description: Token ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 删除 API Token
+      tags:
+      - Admin
+  /api/admin/api-tokens/{id}/recover:
+    post:
+      description: 将已撤销的 API Token 恢复为有效状态
+      parameters:
+      - description: Token ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 恢复 API Token
+      tags:
+      - Admin
+  /api/admin/api-tokens/{id}/revoke:
+    post:
+      description: 将 API Token 标记为已撤销，使其失效但保留记录
+      parameters:
+      - description: Token ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 撤销 API Token
+      tags:
+      - Admin
+  /api/admin/batches:
+    get:
+      description: 分页查询所有文件批次，支持按状态过滤和取件码模糊搜索
+      parameters:
+      - description: 页码 (默认 1)
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量 (默认 20)
+        in: query
+        name: page_size
+        type: integer
+      - description: 状态 (active/expired/deleted)
+        in: query
+        name: status
+        type: string
+      - description: 取件码 (模糊搜索)
+        in: query
+        name: pickup_code
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/admin.ListBatchesResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 获取批次列表
+      tags:
+      - Admin
+  /api/admin/batches/{batch_id}:
+    delete:
+      description: 标记批次为已删除，并物理删除关联的存储文件
+      parameters:
+      - description: 批次 ID (UUID)
+        in: path
+        name: batch_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 删除批次
+      tags:
+      - Admin
+    get:
+      description: 根据批次 ID 获取批次信息及关联的文件列表
+      parameters:
+      - description: 批次 ID (UUID)
+        in: path
+        name: batch_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.FileBatch'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 获取批次详情
+      tags:
+      - Admin
+    put:
+      consumes:
+      - application/json
+      description: 允许修改备注、过期策略、最大下载次数、状态等
+      parameters:
+      - description: 批次 ID (UUID)
+        in: path
+        name: batch_id
+        required: true
+        type: string
+      - description: 修改内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/admin.UpdateBatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.FileBatch'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 修改批次信息
+      tags:
+      - Admin
+  /api/admin/batches/clean:
+    post:
+      description: 手动扫描并物理删除所有已过期或标记为删除的文件批次及其关联文件
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 手动触发清理
+      tags:
+      - Admin
+  /api/admin/config:
+    get:
+      description: 获取系统的完整配置文件内容（仅管理员）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/config.Config'
+              type: object
+      security:
+      - AdminAuth: []
+      summary: 获取完整配置
+      tags:
+      - Admin
+    put:
+      consumes:
+      - application/json
+      description: 更新系统的配置文件内容（仅管理员）
+      parameters:
+      - description: 新配置内容
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/config.Config'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/config.Config'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - AdminAuth: []
+      summary: 更新配置
+      tags:
+      - Admin
+  /api/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: 通过密码换取 JWT Token
+      parameters:
+      - description: 登录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/admin.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/admin.LoginResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: 管理员登录
+      tags:
+      - Admin
+  /api/batches:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传一个或多个文件并创建一个提取批次。如果配置了 require_token，则必须提供带 upload scope 的 API
+        Token。
+      parameters:
+      - description: 文件列表
+        in: formData
+        name: files
+        required: true
+        type: file
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      - description: 过期类型 (time/download/permanent)
+        in: formData
+        name: expire_type
+        type: string
+      - description: 过期天数 (针对 time 类型)
+        in: formData
+        name: expire_days
+        type: integer
+      - description: 最大下载次数 (针对 download 类型)
+        in: formData
+        name: max_downloads
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/public.UploadResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - APITokenAuth: []
+      summary: 上传文件
+      tags:
+      - Public
+  /api/batches/{pickup_code}:
+    get:
+      description: 根据取件码获取文件批次详细信息和文件列表。可选提供带 pickup scope 的 API Token。
+      parameters:
+      - description: 取件码
+        in: path
+        name: pickup_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/public.PickupResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - APITokenAuth: []
+      summary: 获取批次信息
+      tags:
+      - Public
+  /api/batches/{pickup_code}/count:
+    get:
+      description: 根据取件码查询当前下载次数和最大允许下载次数。支持已过期的批次。
+      parameters:
+      - description: 取件码
+        in: path
+        name: pickup_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/public.DownloadCountResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: 查询下载次数
+      tags:
+      - Public
+  /api/batches/{pickup_code}/download:
+    get:
+      description: 根据取件码将批次内的所有文件打包为 ZIP 格式一次性下载。可选提供带 pickup scope 的 API Token。
+      parameters:
+      - description: 取件码
+        in: path
+        name: pickup_code
+        required: true
+        type: string
+      produces:
+      - application/zip
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - APITokenAuth: []
+      summary: 批量下载文件
+      tags:
+      - Public
+  /api/batches/text:
+    post:
+      consumes:
+      - application/json
+      description: 中转一段长文本内容并创建一个提取批次。如果配置了 require_token，则必须提供带 upload scope 的 API
+        Token。
+      parameters:
+      - description: 文本内容及配置
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/public.UploadTextRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/public.UploadResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - APITokenAuth: []
+      summary: 发送长文本
+      tags:
+      - Public
+  /api/config:
+    get:
+      description: 获取前端展示所需的非敏感配置数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/public.PublicConfig'
+              type: object
+      summary: 获取公共配置
+      tags:
+      - Public
+  /api/files/{file_id}/{filename}:
+    get:
+      description: 根据文件 ID 下载单个文件。支持直观的文件名结尾以方便下载工具识别。可选提供带 pickup scope 的 API Token。
+      parameters:
+      - description: 文件 ID (UUID)
+        in: path
+        name: file_id
+        required: true
+        type: string
+      - description: 文件名
+        in: path
+        name: filename
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+        "410":
+          description: Gone
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - APITokenAuth: []
+      summary: 下载单个文件
+      tags:
+      - Public
+  /api/files/{file_id}/download:
+    get:
+      description: 根据文件 ID 下载单个文件。支持直观的文件名结尾以方便下载工具识别。可选提供带 pickup scope 的 API Token。
+      parameters:
+      - description: 文件 ID (UUID)
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+        "410":
+          description: Gone
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - APITokenAuth: []
+      summary: 下载单个文件
+      tags:
+      - Public
+securityDefinitions:
+  APITokenAuth:
+    description: Type "Bearer <API-Token>" to authenticate. Required scope depends
+      on the endpoint.
+    in: header
+    name: Authorization
+    type: apiKey
+  AdminAuth:
+    description: Type "Bearer <JWT-Token>" or "Bearer <API-Token>" to authenticate.
+      API Token must have 'admin' scope.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

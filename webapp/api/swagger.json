@@ -1,0 +1,1713 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "自托管的文件暂存柜后端系统 API 文档",
+        "title": "文件暂存柜 API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/admin/api-tokens": {
+            "get": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "获取系统中所有 API Token 的详细信息（不包含哈希）",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "获取 API Token 列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.APIToken"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "创建一个新的 API Token，返回原始 Token（仅显示一次）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "创建 API Token",
+                "parameters": [
+                    {
+                        "description": "Token 信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.CreateTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin.CreateTokenResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/api-tokens/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "根据 ID 永久删除 API Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "删除 API Token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Token ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/api-tokens/{id}/recover": {
+            "post": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "将已撤销的 API Token 恢复为有效状态",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "恢复 API Token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Token ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/api-tokens/{id}/revoke": {
+            "post": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "将 API Token 标记为已撤销，使其失效但保留记录",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "撤销 API Token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Token ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/batches": {
+            "get": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "分页查询所有文件批次，支持按状态过滤和取件码模糊搜索",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "获取批次列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码 (默认 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量 (默认 20)",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态 (active/expired/deleted)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "取件码 (模糊搜索)",
+                        "name": "pickup_code",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin.ListBatchesResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/batches/clean": {
+            "post": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "手动扫描并物理删除所有已过期或标记为删除的文件批次及其关联文件",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "手动触发清理",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/batches/{batch_id}": {
+            "get": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "根据批次 ID 获取批次信息及关联的文件列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "获取批次详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "批次 ID (UUID)",
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.FileBatch"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "允许修改备注、过期策略、最大下载次数、状态等",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "修改批次信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "批次 ID (UUID)",
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "修改内容",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.UpdateBatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.FileBatch"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "标记批次为已删除，并物理删除关联的存储文件",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "删除批次",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "批次 ID (UUID)",
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/config": {
+            "get": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "获取系统的完整配置文件内容（仅管理员）",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "获取完整配置",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/config.Config"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "更新系统的配置文件内容（仅管理员）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "更新配置",
+                "parameters": [
+                    {
+                        "description": "新配置内容",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/config.Config"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/config.Config"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/login": {
+            "post": {
+                "description": "通过密码换取 JWT Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "管理员登录",
+                "parameters": [
+                    {
+                        "description": "登录请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin.LoginResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/batches": {
+            "post": {
+                "security": [
+                    {
+                        "APITokenAuth": []
+                    }
+                ],
+                "description": "上传一个或多个文件并创建一个提取批次。如果配置了 require_token，则必须提供带 upload scope 的 API Token。",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "上传文件",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "文件列表",
+                        "name": "files",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "过期类型 (time/download/permanent)",
+                        "name": "expire_type",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "过期天数 (针对 time 类型)",
+                        "name": "expire_days",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "最大下载次数 (针对 download 类型)",
+                        "name": "max_downloads",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/public.UploadResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/batches/text": {
+            "post": {
+                "security": [
+                    {
+                        "APITokenAuth": []
+                    }
+                ],
+                "description": "中转一段长文本内容并创建一个提取批次。如果配置了 require_token，则必须提供带 upload scope 的 API Token。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "发送长文本",
+                "parameters": [
+                    {
+                        "description": "文本内容及配置",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/public.UploadTextRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/public.UploadResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/batches/{pickup_code}": {
+            "get": {
+                "security": [
+                    {
+                        "APITokenAuth": []
+                    }
+                ],
+                "description": "根据取件码获取文件批次详细信息和文件列表。可选提供带 pickup scope 的 API Token。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "获取批次信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "取件码",
+                        "name": "pickup_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/public.PickupResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/batches/{pickup_code}/count": {
+            "get": {
+                "description": "根据取件码查询当前下载次数和最大允许下载次数。支持已过期的批次。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "查询下载次数",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "取件码",
+                        "name": "pickup_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/public.DownloadCountResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/batches/{pickup_code}/download": {
+            "get": {
+                "security": [
+                    {
+                        "APITokenAuth": []
+                    }
+                ],
+                "description": "根据取件码将批次内的所有文件打包为 ZIP 格式一次性下载。可选提供带 pickup scope 的 API Token。",
+                "produces": [
+                    "application/zip"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "批量下载文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "取件码",
+                        "name": "pickup_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/config": {
+            "get": {
+                "description": "获取前端展示所需的非敏感配置数据",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "获取公共配置",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/public.PublicConfig"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/files/{file_id}/download": {
+            "get": {
+                "security": [
+                    {
+                        "APITokenAuth": []
+                    }
+                ],
+                "description": "根据文件 ID 下载单个文件。支持直观的文件名结尾以方便下载工具识别。可选提供带 pickup scope 的 API Token。",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "下载单个文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "文件 ID (UUID)",
+                        "name": "file_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "410": {
+                        "description": "Gone",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/files/{file_id}/{filename}": {
+            "get": {
+                "security": [
+                    {
+                        "APITokenAuth": []
+                    }
+                ],
+                "description": "根据文件 ID 下载单个文件。支持直观的文件名结尾以方便下载工具识别。可选提供带 pickup scope 的 API Token。",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "下载单个文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "文件 ID (UUID)",
+                        "name": "file_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件名",
+                        "name": "filename",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "410": {
+                        "description": "Gone",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "admin.CreateTokenRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "expire_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Test Token"
+                },
+                "scope": {
+                    "type": "string",
+                    "enum": [
+                        "upload",
+                        "pickup",
+                        "admin"
+                    ],
+                    "example": "upload,pickup"
+                }
+            }
+        },
+        "admin.CreateTokenResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.APIToken"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.ListBatchesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.FileBatch"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "admin.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "admin"
+                }
+            }
+        },
+        "admin.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.UpdateBatchRequest": {
+            "type": "object",
+            "properties": {
+                "download_count": {
+                    "type": "integer"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "expire_type": {
+                    "type": "string"
+                },
+                "max_downloads": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "config.APITokenConfig": {
+            "type": "object",
+            "properties": {
+                "allow_admin_api": {
+                    "description": "是否允许 API Token 访问管理接口",
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "description": "是否启用 API Token",
+                    "type": "boolean"
+                },
+                "max_tokens": {
+                    "description": "最大 Token 数量",
+                    "type": "integer"
+                }
+            }
+        },
+        "config.Config": {
+            "type": "object",
+            "properties": {
+                "api_token": {
+                    "description": "API Token 设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.APITokenConfig"
+                        }
+                    ]
+                },
+                "database": {
+                    "description": "数据库设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.DatabaseConfig"
+                        }
+                    ]
+                },
+                "log": {
+                    "description": "日志设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.LogConfig"
+                        }
+                    ]
+                },
+                "security": {
+                    "description": "安全设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.SecurityConfig"
+                        }
+                    ]
+                },
+                "site": {
+                    "description": "站点设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.SiteConfig"
+                        }
+                    ]
+                },
+                "storage": {
+                    "description": "存储设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.StorageConfig"
+                        }
+                    ]
+                },
+                "upload": {
+                    "description": "上传设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.UploadConfig"
+                        }
+                    ]
+                },
+                "web": {
+                    "description": "Web 前端设置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.WebConfig"
+                        }
+                    ]
+                }
+            }
+        },
+        "config.DatabaseConfig": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "description": "额外配置参数 (DSN)",
+                    "type": "string"
+                },
+                "dbname": {
+                    "description": "数据库名称",
+                    "type": "string"
+                },
+                "host": {
+                    "description": "数据库地址",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "数据库密码",
+                    "type": "string"
+                },
+                "path": {
+                    "description": "SQLite 数据库文件路径",
+                    "type": "string"
+                },
+                "port": {
+                    "description": "数据库端口",
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "数据库类型: sqlite, mysql, postgres",
+                    "type": "string"
+                },
+                "user": {
+                    "description": "数据库用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "config.LogConfig": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "description": "日志文件路径，为空则仅输出到控制台",
+                    "type": "string"
+                },
+                "level": {
+                    "description": "日志级别: debug, info, warn, error",
+                    "type": "string"
+                }
+            }
+        },
+        "config.SecurityConfig": {
+            "type": "object",
+            "properties": {
+                "admin_password": {
+                    "description": "管理员密码明文 (仅用于更新请求，不保存到文件)",
+                    "type": "string"
+                },
+                "admin_password_hash": {
+                    "description": "管理员密码哈希 (bcrypt)",
+                    "type": "string"
+                },
+                "jwt_secret": {
+                    "description": "JWT 签名密钥",
+                    "type": "string"
+                },
+                "pickup_code_length": {
+                    "description": "取件码长度 (变更后将自动通过右侧补零或截取调整存量数据)",
+                    "type": "integer"
+                },
+                "pickup_fail_limit": {
+                    "description": "取件失败尝试限制",
+                    "type": "integer"
+                }
+            }
+        },
+        "config.SiteConfig": {
+            "type": "object",
+            "properties": {
+                "base_url": {
+                    "description": "站点外部访问地址 (例如: https://file.example.com)",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "站点描述",
+                    "type": "string"
+                },
+                "logo": {
+                    "description": "站点 Logo URL",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "站点名称",
+                    "type": "string"
+                },
+                "port": {
+                    "description": "监听端口",
+                    "type": "integer"
+                }
+            }
+        },
+        "config.StorageConfig": {
+            "type": "object",
+            "properties": {
+                "local": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "description": "本地存储路径",
+                            "type": "string"
+                        }
+                    }
+                },
+                "s3": {
+                    "type": "object",
+                    "properties": {
+                        "access_key": {
+                            "description": "S3 Access Key",
+                            "type": "string"
+                        },
+                        "bucket": {
+                            "description": "S3 Bucket",
+                            "type": "string"
+                        },
+                        "endpoint": {
+                            "description": "S3 端点",
+                            "type": "string"
+                        },
+                        "region": {
+                            "description": "S3 区域",
+                            "type": "string"
+                        },
+                        "secret_key": {
+                            "description": "S3 Secret Key",
+                            "type": "string"
+                        },
+                        "use_ssl": {
+                            "description": "是否使用 SSL",
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "type": {
+                    "description": "存储类型: local, webdav, s3",
+                    "type": "string"
+                },
+                "webdav": {
+                    "type": "object",
+                    "properties": {
+                        "password": {
+                            "description": "WebDAV 密码",
+                            "type": "string"
+                        },
+                        "root": {
+                            "description": "WebDAV 根目录",
+                            "type": "string"
+                        },
+                        "url": {
+                            "description": "WebDAV 地址",
+                            "type": "string"
+                        },
+                        "username": {
+                            "description": "WebDAV 用户名",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "config.UploadConfig": {
+            "type": "object",
+            "properties": {
+                "max_batch_files": {
+                    "description": "每个批次最大文件数",
+                    "type": "integer"
+                },
+                "max_file_size_mb": {
+                    "description": "单个文件最大大小 (MB)",
+                    "type": "integer"
+                },
+                "max_retention_days": {
+                    "description": "最大保留天数",
+                    "type": "integer"
+                },
+                "require_token": {
+                    "description": "是否强制要求上传 Token",
+                    "type": "boolean"
+                }
+            }
+        },
+        "config.WebConfig": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "description": "Web 前端资源路径",
+                    "type": "string"
+                }
+            }
+        },
+        "model.APIToken": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_used_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "revoked": {
+                    "type": "boolean"
+                },
+                "scope": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.FileBatch": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "download_count": {
+                    "type": "integer"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "expire_type": {
+                    "description": "time / download / permanent",
+                    "type": "string"
+                },
+                "file_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.FileItem"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "max_downloads": {
+                    "type": "integer"
+                },
+                "pickup_code": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "active / expired / deleted",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "file / text",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.FileItem": {
+            "type": "object",
+            "properties": {
+                "batch_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "download_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "mime_type": {
+                    "type": "string"
+                },
+                "original_name": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "storage_path": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {},
+                "msg": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "public.DownloadCountResponse": {
+            "type": "object",
+            "properties": {
+                "download_count": {
+                    "type": "integer"
+                },
+                "max_downloads": {
+                    "type": "integer"
+                }
+            }
+        },
+        "public.PickupResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "download_count": {
+                    "type": "integer"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "expire_type": {
+                    "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.FileItem"
+                    }
+                },
+                "max_downloads": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "public.PublicAPITokenConfig": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "public.PublicConfig": {
+            "type": "object",
+            "properties": {
+                "api_token": {
+                    "$ref": "#/definitions/public.PublicAPITokenConfig"
+                },
+                "security": {
+                    "$ref": "#/definitions/public.PublicSecurityConfig"
+                },
+                "site": {
+                    "$ref": "#/definitions/config.SiteConfig"
+                },
+                "storage": {
+                    "$ref": "#/definitions/public.PublicStorageConfig"
+                },
+                "upload": {
+                    "$ref": "#/definitions/config.UploadConfig"
+                }
+            }
+        },
+        "public.PublicSecurityConfig": {
+            "type": "object",
+            "properties": {
+                "pickup_code_length": {
+                    "type": "integer"
+                }
+            }
+        },
+        "public.PublicStorageConfig": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "public.UploadResponse": {
+            "type": "object",
+            "properties": {
+                "batch_id": {
+                    "type": "string"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "pickup_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "public.UploadTextRequest": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "example": "这是一段长文本内容..."
+                },
+                "expire_days": {
+                    "type": "integer",
+                    "example": 7
+                },
+                "expire_type": {
+                    "type": "string",
+                    "example": "time"
+                },
+                "max_downloads": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "remark": {
+                    "type": "string",
+                    "example": "文本备注"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "APITokenAuth": {
+            "description": "Type \"Bearer \u003cAPI-Token\u003e\" to authenticate. Required scope depends on the endpoint.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "AdminAuth": {
+            "description": "Type \"Bearer \u003cJWT-Token\u003e\" or \"Bearer \u003cAPI-Token\u003e\" to authenticate. API Token must have 'admin' scope.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

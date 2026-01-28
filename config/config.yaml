@@ -1,0 +1,60 @@
+site:
+    name: 文件暂存柜
+    description: 临时文件中转服务
+    logo: /favicon.png
+    base_url: ""
+    port: 8080
+security:
+    admin_password_hash: $2a$10$Bm0TEmU4uj.bVHYiIPFBheUkcdg6XHpsanLvmpoAtgU1UnKbo9.vy
+    pickup_code_length: 6
+    pickup_fail_limit: 5
+    jwt_secret: file-relay-secret
+upload:
+    max_file_size_mb: 100
+    max_batch_files: 20
+    max_retention_days: 30
+    require_token: true
+storage:
+    type: local
+    local:
+        path: data/storage_data
+    webdav:
+        url: https://dav.example.com
+        username: user
+        password: pass
+        root: /file-relay
+    s3:
+        endpoint: s3.amazonaws.com
+        region: us-east-1
+        access_key: your-access-key
+        secret_key: your-secret-key
+        bucket: file-relay-bucket
+        use_ssl: false
+api_token:
+    enabled: true
+    allow_admin_api: true
+    max_tokens: 20
+database:
+    type: sqlite
+    path: data/file_relay.db
+    # mysql 示例:
+    # type: mysql
+    # host: 127.0.0.1
+    # port: 3306
+    # user: root
+    # password: password
+    # dbname: file_relay
+    # config: charset=utf8mb4&parseTime=True&loc=Local
+    # postgres 示例:
+    # type: postgres
+    # host: 127.0.0.1
+    # port: 5432
+    # user: postgres
+    # password: password
+    # dbname: file_relay
+    # config: sslmode=disable
+web:
+    path: web
+log:
+    level: debug
+    file_path: data/logs/app.log

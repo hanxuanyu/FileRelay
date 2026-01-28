@@ -1,0 +1,23 @@
+services:
+  filerelay:
+    build:
+      context: .
+      args:
+        - GOPROXY=${GOPROXY:-https://proxy.golang.org,direct}
+        - NPM_REGISTRY=${NPM_REGISTRY:-https://registry.npmjs.org/}
+    image: filerelay:latest
+    container_name: filerelay
+    ports:
+      - "${HOST_PORT:-8080}:${FR_SITE_PORT:-8080}"
+    volumes:
+      - ./data:/app/data
+      - ./data/config:/app/config
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - FR_SITE_NAME=${FR_SITE_NAME:-文件暂存柜}
+      - FR_SITE_PORT=${FR_SITE_PORT:-8080}
+      - FR_LOG_LEVEL=${FR_LOG_LEVEL:-info}
+      - FR_DB_PATH=${FR_DB_PATH:-data/file_relay.db}
+      - FR_STORAGE_LOCAL_PATH=${FR_STORAGE_LOCAL_PATH:-data/storage_data}
+      - FR_LOG_FILE_PATH=${FR_LOG_FILE_PATH:-data/logs/app.log}
+    restart: unless-stopped
