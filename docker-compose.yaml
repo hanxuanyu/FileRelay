@@ -11,7 +11,6 @@ services:
       - "${HOST_PORT:-8080}:${FR_SITE_PORT:-8080}"
     volumes:
       - ./data:/app/data
-      - ./data/config:/app/config
     environment:
       - TZ=${TZ:-Asia/Shanghai}
       - FR_SITE_NAME=${FR_SITE_NAME:-文件暂存柜}
