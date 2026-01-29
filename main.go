@@ -67,7 +67,7 @@ func main() {
 	mime.AddExtensionType(".svg", "image/svg+xml")
 
 	// 解析命令行参数
-	configPath := flag.String("config", "config/config.yaml", "path to config file")
+	configPath := flag.String("config", "data/config/config.yaml", "path to config file")
 	flag.Parse()
 
 	// 1. 加载配置
