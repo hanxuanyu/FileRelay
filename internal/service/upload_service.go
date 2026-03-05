@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log/slog"
 	"mime/multipart"
-	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -51,7 +50,7 @@ func (s *UploadService) CreateBatch(ctx context.Context, files []*multipart.File
 		}
 
 		for _, fileHeader := range files {
-			fileItem, err := s.processFile(ctx, tx, batch.ID, fileHeader)
+			fileItem, err := s.processFile(ctx, tx, batch, fileHeader)
 			if err != nil {
 				return err
 			}
@@ -111,20 +110,31 @@ func (s *UploadService) applyExpire(batch *model.FileBatch, expireType string, e
 		if max, ok := expireValue.(int); ok {
 			batch.MaxDownloads = max
 		}
+	case "permanent":
+		batch.ExpireAt = nil
+		batch.MaxDownloads = 0
 	}
 }
 
-func (s *UploadService) processFile(ctx context.Context, tx *gorm.DB, batchID string, fileHeader *multipart.FileHeader) (*model.FileItem, error) {
+func (s *UploadService) processFile(ctx context.Context, tx *gorm.DB, batch *model.FileBatch, fileHeader *multipart.FileHeader) (*model.FileItem, error) {
 	file, err := fileHeader.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	// 生成唯一存储路径
-	ext := filepath.Ext(fileHeader.Filename)
+	// 生成用户友好的存储路径: 日期/原始文件名
+	// 注意：如果同一日期下有同名文件，为了防止覆盖，需要处理冲突。
+	dateStr := time.Now().Format("2006-01-02")
 	fileID := uuid.New().String()
-	storagePath := fmt.Sprintf("%s/%s%s", batchID, fileID, ext)
+	storagePath := fmt.Sprintf("%s/%s", dateStr, fileHeader.Filename)
+
+	// 检查存储路径是否已存在
+	exists, err := storage.GlobalStorage.Exists(ctx, storagePath)
+	if err == nil && exists {
+		// 如果存在，则在文件名后附加 UUID 前缀
+		storagePath = fmt.Sprintf("%s/%s_%s", dateStr, fileID[:8], fileHeader.Filename)
+	}
 
 	// 保存到存储层
 	if err := storage.GlobalStorage.Save(ctx, storagePath, file); err != nil {
@@ -134,7 +144,7 @@ func (s *UploadService) processFile(ctx context.Context, tx *gorm.DB, batchID st
 	// 创建数据库记录
 	item := &model.FileItem{
 		ID:           fileID,
-		BatchID:      batchID,
+		BatchID:      batch.ID,
 		OriginalName: fileHeader.Filename,
 		StoragePath:  storagePath,
 		Size:         fileHeader.Size,

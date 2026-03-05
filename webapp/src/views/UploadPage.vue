@@ -184,12 +184,12 @@
                     <div class="text-xs text-gray-700 dark:text-gray-300 mb-2 font-semibold">{{ t('upload.settings.expireTime') }}</div>
                     <div class="flex flex-wrap gap-1.5">
                       <button
-                        v-for="option in publicConfig.getExpireOptions().filter(opt => opt.value > 0)"
+                        v-for="option in publicConfig.getExpireOptions()"
                         :key="'time-' + option.value"
-                        @click="expireType = 'time'; expireDays = String(option.value); showCustomExpire = false"
+                        @click="expireType = option.value === 0 ? 'permanent' : 'time'; expireDays = String(option.value); showCustomExpire = false"
                         :class="[
                           'px-2.5 py-1 text-xs font-semibold rounded-full transition-all',
-                          expireType === 'time' && expireDays === String(option.value) && !showCustomExpire
+                          (expireType === 'time' || expireType === 'permanent') && expireDays === String(option.value) && !showCustomExpire
                             ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm'
                             : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600'
                         ]"
@@ -229,12 +229,12 @@
                     <div class="text-xs text-gray-700 dark:text-gray-300 mb-2 font-semibold">{{ t('upload.settings.maxDownloads') }}</div>
                     <div class="flex flex-wrap gap-1.5">
                       <button
-                        v-for="option in publicConfig.getDownloadOptions().filter(opt => opt.value > 0)"
+                        v-for="option in publicConfig.getDownloadOptions()"
                         :key="'download-' + option.value"
-                        @click="expireType = 'download'; maxDownloads = String(option.value); showCustomDownloads = false"
+                        @click="expireType = option.value === 0 ? 'permanent' : 'download'; maxDownloads = String(option.value); showCustomDownloads = false"
                         :class="[
                           'px-2.5 py-1 text-xs font-semibold rounded-full transition-all',
-                          expireType === 'download' && maxDownloads === String(option.value) && !showCustomDownloads
+                          (expireType === 'download' || expireType === 'permanent') && maxDownloads === String(option.value) && !showCustomDownloads
                             ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-sm'
                             : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600'
                         ]"
@@ -631,14 +631,14 @@ const uploadFiles = async () => {
     })
 
     // 添加配置
-    const config = {
+    const configData = {
       expire_type: expireType.value,
-      [expireType.value === 'time' ? 'expire_days' : 'max_downloads']: 
-        expireType.value === 'time' ? parseInt(expireDays.value) : parseInt(maxDownloads.value),
+      expire_days: expireType.value === 'time' ? parseInt(expireDays.value) : undefined,
+      max_downloads: expireType.value === 'download' ? parseInt(maxDownloads.value) : undefined,
       remark: remark.value.trim() || undefined
     }
 
-    Object.entries(config).forEach(([key, value]) => {
+    Object.entries(configData).forEach(([key, value]) => {
       if (value !== undefined) {
         formData.append(key, String(value))
       }
@@ -698,15 +698,15 @@ const uploadText = async () => {
   }, 100)
 
   try {
-    const config = {
+    const configData = {
       content: textContent.value.trim(),
       expire_type: expireType.value,
-      [expireType.value === 'time' ? 'expire_days' : 'max_downloads']: 
-        expireType.value === 'time' ? parseInt(expireDays.value) : parseInt(maxDownloads.value),
+      expire_days: expireType.value === 'time' ? parseInt(expireDays.value) : undefined,
+      max_downloads: expireType.value === 'download' ? parseInt(maxDownloads.value) : undefined,
       remark: remark.value.trim() || undefined
     }
 
-    const response = await publicApi.uploadText(config)
+    const response = await publicApi.uploadText(configData)
 
     if (response.data.code === 200) {
       uploadProgress.value = 100

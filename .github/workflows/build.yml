@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
           npm run build
 
       - name: Build Go
-        run: go build -v .
+        run: CGO_ENABLED=0 go build -v -ldflags="-s -w -extldflags=-static" .
       - name: Notification
         if: success()
         env:
