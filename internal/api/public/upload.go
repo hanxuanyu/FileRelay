@@ -92,6 +92,8 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 			max = 1
 		}
 		expireValue = max
+	case "permanent":
+		expireValue = 0
 	}
 
 	batch, err := h.uploadService.CreateBatch(c.Request.Context(), files, remark, expireType, expireValue)
@@ -158,6 +160,8 @@ func (h *UploadHandler) UploadText(c *gin.Context) {
 			req.MaxDownloads = 1
 		}
 		expireValue = req.MaxDownloads
+	case "permanent":
+		expireValue = 0
 	}
 
 	batch, err := h.uploadService.CreateTextBatch(c.Request.Context(), req.Content, req.Remark, req.ExpireType, expireValue)

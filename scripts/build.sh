@@ -51,7 +51,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     fi
     
     echo "正在编译 ${OS}/${ARCH}..."
-    GOOS=$OS GOARCH=$ARCH go build -o "${OUTPUT_DIR}/${OUTPUT_NAME}" main.go
+    CGO_ENABLED=0 GOOS=$OS GOARCH=$ARCH go build -ldflags="-s -w -extldflags=-static" -o "${OUTPUT_DIR}/${OUTPUT_NAME}" main.go
     
     if [ $? -eq 0 ]; then
         echo "  ${OS}/${ARCH} 编译成功"
