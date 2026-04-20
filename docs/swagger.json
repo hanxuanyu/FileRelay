@@ -1062,6 +1062,49 @@
                     }
                 }
             }
+        },
+        "/api/health": {
+            "get": {
+                "security": [
+                    {
+                        "APITokenAuth": []
+                    }
+                ],
+                "description": "检查服务运行状态，需要有效的 API Token 或管理员 JWT 进行鉴权。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public"
+                ],
+                "summary": "健康检查",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/public.HealthResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1574,6 +1617,27 @@
                 },
                 "max_downloads": {
                     "type": "integer"
+                }
+            }
+        },
+        "public.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "go_version": {
+                    "type": "string",
+                    "example": "go1.21.0"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "uptime": {
+                    "type": "string",
+                    "example": "2h30m15s"
                 }
             }
         },

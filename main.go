@@ -141,9 +141,12 @@ func main() {
 	pickupHandler := public.NewPickupHandler()
 	publicConfigHandler := public.NewConfigHandler()
 
+	healthHandler := public.NewHealthHandler()
+
 	api := r.Group("/api")
 	{
 		api.GET("/config", publicConfigHandler.GetPublicConfig)
+		api.GET("/health", middleware.APITokenAuth("", false), healthHandler.Health)
 		// 统一使用 /batches 作为资源路径
 		api.POST("/batches", middleware.UploadAuth(), uploadHandler.Upload)
 		api.POST("/batches/text", middleware.UploadAuth(), uploadHandler.UploadText)

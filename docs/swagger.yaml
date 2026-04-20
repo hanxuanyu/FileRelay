@@ -340,6 +340,21 @@ definitions:
       max_downloads:
         type: integer
     type: object
+  public.HealthResponse:
+    properties:
+      database:
+        example: ok
+        type: string
+      go_version:
+        example: go1.21.0
+        type: string
+      status:
+        example: ok
+        type: string
+      uptime:
+        example: 2h30m15s
+        type: string
+    type: object
   public.PickupResponse:
     properties:
       content:
@@ -1058,6 +1073,30 @@ paths:
       security:
       - APITokenAuth: []
       summary: 下载单个文件
+      tags:
+      - Public
+  /api/health:
+    get:
+      description: 检查服务运行状态，需要有效的 API Token 或管理员 JWT 进行鉴权。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/public.HealthResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - APITokenAuth: []
+      summary: 健康检查
       tags:
       - Public
 securityDefinitions:
