@@ -85,3 +85,5 @@ desktop.ini
 /logs/
 /output/
 /web/
+.env
+scripts/*.log
